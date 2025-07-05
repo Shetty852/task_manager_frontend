@@ -9,8 +9,9 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
+  base: '/',  // ✅ Ensures assets load correctly on Vercel and mobile
   build: {
-    outDir: 'dist', // Output to frontend/build
+    outDir: 'dist', // Output directory
     emptyOutDir: true,
   },
   resolve: {
