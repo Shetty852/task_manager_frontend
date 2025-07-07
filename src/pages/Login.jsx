@@ -7,7 +7,7 @@ function Login() {
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate(); // ✅ Declare navigate
+  const navigate = useNavigate(); // Declare navigate
 
   useEffect(() => {
     setIsVisible(true);
@@ -195,7 +195,7 @@ function Login() {
       if (data.token) {
         localStorage.setItem('token', data.token);
         alert('Login successful!');
-        navigate('/tasks'); // ✅ Redirect to tasks page
+        navigate('/tasks'); // Redirect to tasks page
       } else {
         alert(data.msg || 'Login failed');
       }
