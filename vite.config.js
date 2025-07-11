@@ -9,14 +9,14 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',  // ✅ Ensures assets load correctly on Vercel and mobile
+  base: '/',  //  Ensures assets load correctly on Vercel and mobile
   build: {
     outDir: 'dist', // Output directory
     emptyOutDir: true,
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src') // ✅ Safe alias
+      '@': path.resolve(__dirname, './src') //  Safe alias
     }
   }
 });
