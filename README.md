@@ -49,7 +49,7 @@ This project is a fully responsive task management solution where users can:
 - Secure user registration and login
 - Password strength validation using RegEx
 - bcrypt for password hashing
-- Basic session management 
+- Basic session management (JWT)
 
 ### Task Management
 
