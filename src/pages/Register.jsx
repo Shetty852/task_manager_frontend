@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { validateEmailInput } from '../utils/emailValidation';
 
 function Register() {
-  const [form, setForm] = useState({ username: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +29,20 @@ function Register() {
     } else {
       setPasswordStrength('Medium');
       return true;
+    }
+  };
+
+  const handleEmailChange = (email) => {
+    setForm({ ...form, email });
+    
+    // Real-time email validation
+    const emailValidation = validateEmailInput(email);
+    if (email.trim() !== '' && !emailValidation.isValid) {
+      setErrors({ ...errors, email: emailValidation.error });
+    } else {
+      const newErrors = { ...errors };
+      delete newErrors.email;
+      setErrors(newErrors);
     }
   };
 
@@ -61,7 +76,13 @@ function Register() {
     setErrors({});
 
     const newErrors = {};
-    if (!form.username.trim()) newErrors.username = 'Username is required';
+    
+    // Email validation
+    const emailValidation = validateEmailInput(form.email);
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.error;
+    }
+    
     if (!form.password) newErrors.password = 'Password is required';
     if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     if (form.password && form.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
@@ -76,7 +97,7 @@ function Register() {
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: form.username, password: form.password })
+        body: JSON.stringify({ email: form.email, password: form.password })
       });
 
       const data = await res.json();
@@ -231,17 +252,18 @@ function Register() {
 
         <div style={styles.form}>
           <div>
-            <label style={styles.label}>Username</label>
+            <label style={styles.label}>Email Address</label>
             <input
-              type="text"
-              style={{ ...styles.input, ...(errors.username && styles.inputError) }}
-              value={form.username}
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              type="email"
+              style={{ ...styles.input, ...(errors.email && styles.inputError) }}
+              value={form.email}
+              onChange={(e) => handleEmailChange(e.target.value)}
               onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = errors.username ? '#e53e3e' : '#e2e8f0'}
+              onBlur={(e) => e.target.style.borderColor = errors.email ? '#e53e3e' : '#e2e8f0'}
+              placeholder="Enter your email address"
               required
             />
-            {errors.username && <div style={styles.errorText}>{errors.username}</div>}
+            {errors.email && <div style={styles.errorText}>{errors.email}</div>}
           </div>
 
           <div style={{ position: 'relative' }}>

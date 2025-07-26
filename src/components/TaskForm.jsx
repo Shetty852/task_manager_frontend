@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createTask } from '../api';
+import { validateEmailInput } from '../utils/emailValidation';
 
 const TaskForm = ({ onTaskCreated }) => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const TaskForm = ({ onTaskCreated }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   React.useEffect(() => {
     setIsLoaded(true);
@@ -19,12 +21,29 @@ const TaskForm = ({ onTaskCreated }) => {
       ...prev,
       [field]: value
     }));
+    
+    // Validate email for assignedTo field
+    if (field === 'assignedTo') {
+      if (value.trim() !== '') {
+        const validation = validateEmailInput(value);
+        setEmailError(validation.isValid ? '' : validation.error);
+      } else {
+        setEmailError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.task.trim() || !formData.assignedTo.trim() || !formData.date) {
+      return;
+    }
+
+    // Validate email before submitting
+    const emailValidation = validateEmailInput(formData.assignedTo);
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.error);
       return;
     }
 
@@ -37,6 +56,7 @@ const TaskForm = ({ onTaskCreated }) => {
         assignedTo: '',
         date: ''
       });
+      setEmailError('');
       onTaskCreated?.();
     } catch (error) {
       console.error('Error creating task:', error);
@@ -128,6 +148,16 @@ const TaskForm = ({ onTaskCreated }) => {
       boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
       background: 'rgba(255, 255, 255, 0.95)'
     },
+    inputError: {
+      borderColor: '#e53e3e',
+      background: 'rgba(229, 62, 62, 0.05)'
+    },
+    errorText: {
+      fontSize: '12px',
+      color: '#e53e3e',
+      marginTop: '6px',
+      fontWeight: '500'
+    },
     dateInput: {
       padding: '16px 20px',
       border: '2px solid rgba(102, 126, 234, 0.2)',
@@ -187,7 +217,7 @@ const TaskForm = ({ onTaskCreated }) => {
     }
   };
 
-  const isFormValid = formData.task.trim() && formData.assignedTo.trim() && formData.date;
+  const isFormValid = formData.task.trim() && formData.assignedTo.trim() && formData.date && !emailError;
 
   return (
     <>
@@ -234,23 +264,25 @@ const TaskForm = ({ onTaskCreated }) => {
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>
-              <span style={styles.labelIcon}>👤</span>
-              Assigned To
+              <span style={styles.labelIcon}>📧</span>
+              Assigned To (Email)
             </label>
             <input
-              type="text"
+              type="email"
               value={formData.assignedTo}
               onChange={(e) => handleInputChange('assignedTo', e.target.value)}
               onFocus={() => setFocusedInput('assignedTo')}
               onBlur={() => setFocusedInput(null)}
               style={{
                 ...styles.input,
-                ...(focusedInput === 'assignedTo' ? styles.inputFocused : {})
+                ...(focusedInput === 'assignedTo' ? styles.inputFocused : {}),
+                ...(emailError ? styles.inputError : {})
               }}
-              placeholder="Enter assignee name..."
+              placeholder="Enter assignee email address..."
               required
               disabled={isSubmitting}
             />
+            {emailError && <div style={styles.errorText}>{emailError}</div>}
           </div>
 
           <div style={styles.inputGroup}>
