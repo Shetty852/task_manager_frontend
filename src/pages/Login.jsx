@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import navigate
+import { validateEmailInput } from '../utils/emailValidation';
 
 function Login() {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const navigate = useNavigate(); // Declare navigate
 
@@ -132,6 +134,16 @@ function Login() {
       fontSize: '14px',
       fontWeight: '500'
     },
+    inputError: {
+      borderColor: '#e53e3e',
+      background: 'rgba(229, 62, 62, 0.05)'
+    },
+    errorText: {
+      fontSize: '12px',
+      color: '#e53e3e',
+      marginTop: '6px',
+      fontWeight: '500'
+    },
     button: {
       width: '100%',
       padding: '18px',
@@ -181,6 +193,15 @@ function Login() {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    
+    // Validate email before submitting
+    const emailValidation = validateEmailInput(form.email);
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.error);
+      return;
+    }
+    
+    setEmailError('');
     setIsLoading(true);
 
     try {
@@ -204,6 +225,19 @@ function Login() {
       alert('Network error. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setForm({ ...form, email });
+    
+    // Real-time validation
+    if (email.trim() !== '') {
+      const validation = validateEmailInput(email);
+      setEmailError(validation.isValid ? '' : validation.error);
+    } else {
+      setEmailError('');
     }
   };
 
@@ -239,17 +273,21 @@ function Login() {
 
         <div style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Username</label>
+            <label style={styles.label}>Email Address</label>
             <input
-              type="text"
-              style={styles.input}
-              placeholder="Enter your username"
-              value={form.username}
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              type="email"
+              style={{
+                ...styles.input,
+                ...(emailError ? styles.inputError : {})
+              }}
+              placeholder="Enter your email address"
+              value={form.email}
+              onChange={handleEmailChange}
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
               required
             />
+            {emailError && <div style={styles.errorText}>{emailError}</div>}
           </div>
 
           <div style={styles.inputGroup}>
