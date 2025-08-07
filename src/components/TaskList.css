@@ -7,7 +7,6 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Task Statistics */
 .task-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
