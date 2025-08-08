@@ -100,7 +100,7 @@
   }
 }
 
-/* Add top margin to body to account for fixed navbar */
+
 body {
   margin-top: 70px;
 }
